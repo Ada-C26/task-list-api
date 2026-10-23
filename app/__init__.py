@@ -18,5 +18,7 @@ def create_app(config=None):
     migrate.init_app(app, db)
 
     # Register Blueprints here
+    from .routes.task_routes import bp as tasks_bp
+    app.register_blueprint(tasks_bp)
 
     return app
