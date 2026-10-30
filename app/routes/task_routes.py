@@ -5,14 +5,31 @@ from .route_utilities import validate_model, create_model
 
 bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
+'''Wave 1 CRUD Routes'''
+
 @bp.post("")
 def create_task():
     request_body = request.get_json()
     return create_model(Task, request_body)
 
+'''Wave 2 Update get_all_tasks'''
+# @bp.get("")
+# def get_all_tasks():
+#     query = db.select(Task).order_by(Task.id)
+#     tasks = db.session.scalars(query)
+#     return [task.to_dict() for task in tasks]
 @bp.get("")
 def get_all_tasks():
-    query = db.select(Task).order_by(Task.id)
+    query = db.select(Task)
+    sort_param = request.args.get("sort")
+
+    if sort_param == "asc":
+        query = query.order_by(Task.title.asc())
+    elif sort_param == "desc":
+        query = query.order_by(Task.title.desc())
+    else:
+        query = query.order_by(Task.id)
+
     tasks = db.session.scalars(query)
     return [task.to_dict() for task in tasks]
 

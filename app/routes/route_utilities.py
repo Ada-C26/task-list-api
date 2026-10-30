@@ -1,6 +1,8 @@
 from flask import abort, make_response
 from ..db import db
 
+'''Wave 1 Route Helper Methods'''
+
 def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
