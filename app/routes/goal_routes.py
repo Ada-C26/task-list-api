@@ -1,6 +1,7 @@
 from flask import Blueprint, request, Response
 from ..db import db
 from ..models.goal import Goal
+from ..models.task import Task
 from .route_utilities import validate_model, create_model
 
 bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
@@ -43,24 +44,27 @@ def delete_goal(goal_id):
     return Response(status=204, mimetype="application/json")
 
 
-# '''Wave 3 Custom Endpoints'''
+'''Wave 6 Routes'''
+@bp.post("/<goal_id>/tasks")
+def add_tasks_to_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
 
-# @bp.patch("/<task_id>/mark_complete")
-# def mark_task_complete(task_id):
-#     task = validate_model(Task, task_id)
-#     task.completed_at = datetime.now()
-#     db.session.commit()
+    tasks = [validate_model(Task, task_id)
+            for task_id in request_body["task_ids"]]
 
-#     '''Wave 4 slack complete'''
-#     send_slack_message(f"Someone just completed the task {task.title}")
+    goal.tasks = tasks
+    db.session.commit()
 
-#     return Response(status=204, mimetype="application/json")
+    return {
+        "id": goal.id,
+        "task_ids": [task.id for task in goal.tasks]
+    }, 200
 
+@bp.get("/<goal_id>/tasks")
+def get_tasks_for_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
 
-# @bp.patch("/<task_id>/mark_incomplete")
-# def mark_task_incomplete(task_id):
-#     task = validate_model(Task, task_id)
-#     task.completed_at = None
-#     db.session.commit()
-
-#     return Response(status=204, mimetype="application/json")
+    response = goal.to_dict()
+    response["tasks"] = [task.to_dict() for task in goal.tasks]
+    return response
