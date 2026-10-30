@@ -2,7 +2,9 @@ from flask import Blueprint, request, Response
 from ..db import db
 from ..models.goal import Goal
 from ..models.task import Task
-from .route_utilities import validate_model, create_model
+from .route_utilities import (
+    validate_model, create_model,
+    get_models_with_sort, delete_model, no_content_response)        #Wave 7 refactor
 
 bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -10,50 +12,37 @@ bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
 @bp.post("")
 def create_goal():
-    request_body = request.get_json()
-    return create_model(Goal, request_body)
+    return create_model(Goal, request.get_json())
 
 @bp.get("")
 def get_all_goals():
-    query = db.select(Goal).order_by(Goal.id)
-    goals = db.session.scalars(query)
-    return [goal.to_dict() for goal in goals]
+    return get_models_with_sort(Goal, request.args.get("sort"))
 
 
 @bp.get("/<goal_id>")
-def get_one_task(goal_id):
-    goal = validate_model(Goal, goal_id)
-    return goal.to_dict()
+def get_one_goal(goal_id):
+    return validate_model(Gaol, goal_id).to_dict()
 
 @bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    request_body = request.get_json()
-
-    goal.title = request_body["title"]
+    goal.title = request.get_json()["title"]
     db.session.commit()
 
-    return Response(status=204, mimetype="application/json")
+    return no_content_response
 
 @bp.delete("/<goal_id>")
 def delete_goal(goal_id):
-    goal = validate_model(Goal, goal_id)
-    db.session.delete(goal)
-    db.session.commit()
-
-    return Response(status=204, mimetype="application/json")
+    return delete_model(Goal, goal_id)
 
 
 '''Wave 6 Routes'''
 @bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    request_body = request.get_json()
+    task_ids = request.get_json()["task_ids"]
 
-    tasks = [validate_model(Task, task_id)
-            for task_id in request_body["task_ids"]]
-
-    goal.tasks = tasks
+    goal.tasks = [validate_model(Task, task_id) for task_id in request_body ["task_ids"]]
     db.session.commit()
 
     return {

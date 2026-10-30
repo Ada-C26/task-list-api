@@ -1,4 +1,4 @@
-from flask import abort, make_response
+from flask import abort, make_response, Response
 from ..db import db
 import os
 import requests
@@ -39,3 +39,28 @@ def send_slack_message(text):
         headers={"Authorization": f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"},
         json={"channel": "task-notifications", "text":text}
     )
+
+
+'''Wave 7 Refactoring'''
+#moved code from task_routes, replased task with cls
+def get_models_with_sort(cls, sort_param=None):
+    query = db.select(cls)
+
+    if sort_param == "asc":
+        query = query.order_by(cls.title.asc())
+    elif sort_param == "desc":
+        query = query.order_by(cls.title.desc())
+    else:
+        query = query.order_by(cls.id)
+
+    models = db.session.scalars(query)
+    return [model.to_dict() for model in models]
+
+def delete_model(cls, model_id):
+    model = validate_model(cls, model_id)
+    db.session.delete(model)
+    db.session.commit()
+    return no_content_response()
+
+def no_content_response():
+    return Response(status=204, mimetype="application/json")
