@@ -21,4 +21,7 @@ def create_app(config=None):
     from .routes.task_routes import bp as tasks_bp
     app.register_blueprint(tasks_bp)
 
+    from .routes.goal_routes import bp as goals_bp
+    app.register_blueprint(goals_bp)
+
     return app

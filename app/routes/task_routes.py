@@ -1,7 +1,7 @@
 from flask import Blueprint, request, Response
 from ..db import db
 from ..models.task import Task
-from .route_utilities import validate_model, create_model
+from .route_utilities import validate_model, create_model, send_slack_message
 from datetime import datetime
 
 bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
@@ -67,7 +67,11 @@ def mark_task_complete(task_id):
     task.completed_at = datetime.now()
     db.session.commit()
 
+    '''Wave 4 slack complete'''
+    send_slack_message(f"Someone just completed the task {task.title}")
+
     return Response(status=204, mimetype="application/json")
+
 
 @bp.patch("/<task_id>/mark_incomplete")
 def mark_task_incomplete(task_id):

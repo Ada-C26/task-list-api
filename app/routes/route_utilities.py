@@ -1,5 +1,7 @@
 from flask import abort, make_response
 from ..db import db
+import os
+import requests
 
 '''Wave 1 Route Helper Methods'''
 
@@ -27,3 +29,13 @@ def create_model(cls, model_data):
     db.session.commit()
 
     return new_model.to_dict(), 201
+
+
+'''Wave 4 Helper Slack'''
+
+def send_slack_message(text):
+    requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"},
+        json={"channel": "task-notifications", "text":text}
+    )
