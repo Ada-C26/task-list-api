@@ -8,7 +8,7 @@ class Task(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str]
     description: Mapped[str]
-    completed_at: Mapped[Optional[datetime]]
+    completed_at: Mapped[Optional[datetime]]                                    #Wave 3, is_complete returns true or flase
 
     '''Wave1 Model Helper Methods'''
 
