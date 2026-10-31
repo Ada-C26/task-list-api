@@ -21,7 +21,7 @@ def get_all_goals():
 
 @bp.get("/<goal_id>")
 def get_one_goal(goal_id):
-    return validate_model(Gaol, goal_id).to_dict()
+    return validate_model(Goal, goal_id).to_dict()
 
 @bp.put("/<goal_id>")
 def update_goal(goal_id):
@@ -29,7 +29,7 @@ def update_goal(goal_id):
     goal.title = request.get_json()["title"]
     db.session.commit()
 
-    return no_content_response
+    return no_content_response()
 
 @bp.delete("/<goal_id>")
 def delete_goal(goal_id):
@@ -42,7 +42,7 @@ def add_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     task_ids = request.get_json()["task_ids"]
 
-    goal.tasks = [validate_model(Task, task_id) for task_id in request_body ["task_ids"]]
+    goal.tasks = [validate_model(Task, task_id) for task_id in task_ids]
     db.session.commit()
 
     return {

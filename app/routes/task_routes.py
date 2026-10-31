@@ -24,7 +24,7 @@ def get_all_tasks():
 @bp.get("/<task_id>")
 def get_one_task(task_id):
     #Wave 7 refactor, task = validate_model(Task, task_id)
-    return validate_model(Task, task_id).todict()
+    return validate_model(Task, task_id).to_dict()
 
 @bp.put("/<task_id>")
 def update_task(task_id):
