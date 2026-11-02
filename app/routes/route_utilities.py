@@ -1,0 +1,66 @@
+from flask import abort, make_response, Response
+from ..db import db
+import os
+import requests
+
+'''Wave 1 Route Helper Methods'''
+
+def validate_model(cls, model_id):
+    try:
+        model_id = int(model_id)
+    except ValueError:
+        abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
+
+    query = db.select(cls).where(cls.id == model_id)
+    model = db.session.scalar(query)
+
+    if not model:
+        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+    return model
+
+
+def create_model(cls, model_data):
+    try:
+        new_model = cls.from_dict(model_data)
+    except KeyError:
+        abort(make_response({"details": "Invalid data"}, 400))
+
+    db.session.add(new_model)
+    db.session.commit()
+
+    return new_model.to_dict(), 201
+
+
+'''Wave 4 Helper Slack'''
+
+def send_slack_message(text):
+    requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers={"Authorization": f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"},
+        json={"channel": "task-notifications", "text":text}
+    )
+
+
+'''Wave 7 Refactoring'''
+#moved code from task_routes, replased task with cls
+def get_models_with_sort(cls, sort_param=None):
+    query = db.select(cls)
+
+    if sort_param == "asc":
+        query = query.order_by(cls.title.asc())
+    elif sort_param == "desc":
+        query = query.order_by(cls.title.desc())
+    else:
+        query = query.order_by(cls.id)
+
+    models = db.session.scalars(query)
+    return [model.to_dict() for model in models]
+
+def delete_model(cls, model_id):
+    model = validate_model(cls, model_id)
+    db.session.delete(model)
+    db.session.commit()
+    return no_content_response()
+
+def no_content_response():
+    return Response(status=204, mimetype="application/json")
