@@ -1,7 +1,9 @@
+
+from app.models.task import Task
+from app.db import db
 import pytest
 
-
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_sorted_asc(client, three_tasks):
     # Act
     response = client.get("/tasks?sort=asc")
@@ -29,7 +31,7 @@ def test_get_tasks_sorted_asc(client, three_tasks):
     ]
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_sorted_desc(client, three_tasks):
     # Act
     response = client.get("/tasks?sort=desc")

@@ -50,7 +50,7 @@ Beyond model helper methods, we should also practice creating route helper metho
 - Retrieve a model instance by its ID.
 
 We might also consider creating a route helper method that can:
-
+#cls handles this already
 - Handle the creation of new instances of a model from a dictionary, returning the expected responses.
 
 ## CRUD for Tasks
