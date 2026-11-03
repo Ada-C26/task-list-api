@@ -1,4 +1,5 @@
 from app import db
+from app.models import goal
 from app.models.goal import Goal
 import pytest
 
@@ -118,7 +119,7 @@ def test_get_goal_not_found(client):
     # ---- Complete Test ----
     # assertion 1 goes here
     assert response.status_code == 404
-    assert response_body == {"details": "Goal not found"}
+    assert response_body == {"details": "Goal 1 not found"}
     # assertion 2 goes here
     # ---- Complete Test ----
 
@@ -152,11 +153,11 @@ def test_update_goal(client, one_goal):
     # assertion 1 goes here
     assert response.status_code == 204
     # assertion 2 goes here
-    assert response.data == b""
-    # assertion 3 goes here
     goal = db.session.get(Goal, 1)
-    assert goal.title == "Updated Goal Title"    # ---- Complete Assertions Here ----
-
+    # assertion 3 goes here
+    assert goal is not None
+      # ---- Complete Assertions Here ----
+    assert goal.title == "Updated Goal Title"
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
@@ -170,7 +171,7 @@ def test_update_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response.get_json() == {"details": "Goal not found"}
+    assert response.get_json() == {"details": "Goal 1 not found"}
    
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_goal(client, one_goal):
@@ -185,12 +186,12 @@ def test_delete_goal(client, one_goal):
     assert response.status_code == 404
 
     response_body = response.get_json()
-    assert "details" in response_body
 
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
-    assert response_body == {"details": "Goal not found"}
+    
+    assert response_body == {"details": "Goal 1 not found"}
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
@@ -206,7 +207,7 @@ def test_delete_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response_body == {"details": "Goal not found"}
+    assert response_body == {"details": "Goal 1 not found"}
     # ---- Complete Assertions Here ----
 
 

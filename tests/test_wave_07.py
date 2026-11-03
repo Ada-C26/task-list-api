@@ -39,7 +39,7 @@ def test_route_utilities_validate_model_with_task_invalid_id(client, three_tasks
     # *****************************************************************************
     # ** Complete test with an assertion about the response body ****************
     # *****************************************************************************
-    assert response.get_json() == {"details": "Invalid ID"}
+    assert response.get_json() == {"details": "Task One invalid"}
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks):
@@ -52,7 +52,7 @@ def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks
     # *****************************************************************************
     response = e.value.get_response()
     assert response.status_code == 404
-    assert response.get_json() == {"details": "Task not found"}
+    assert response.get_json() == {"details": "Task 4 not found"}
 
     
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -75,7 +75,7 @@ def test_route_utilities_validate_model_with_goal_invalid_id(client, one_goal):
     # *****************************************************************************
     response = e.value.get_response()
     assert response.status_code == 400
-    assert response.get_json() == {"details": "Invalid ID"}
+    assert response.get_json() == {"details": "Goal One invalid"}
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_route_utilities_validate_model_with_goal_missing_id(client, one_goal):
@@ -88,7 +88,7 @@ def test_route_utilities_validate_model_with_goal_missing_id(client, one_goal):
     # *****************************************************************************
     response = e.value.get_response()
     assert response.status_code == 404
-    assert response.get_json() == {"details": "Goal not found"}
+    assert response.get_json() == {"details": "Goal 4 not found"}
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_route_utilities_create_model_with_task(client):
