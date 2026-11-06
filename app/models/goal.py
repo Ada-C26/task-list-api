@@ -4,7 +4,7 @@ from ..db import db
 
 class Goal(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(nullable=False)
+    title: Mapped[str]
     tasks: Mapped[list["Task"]] = relationship("Task", back_populates="goal")
 
     @classmethod
