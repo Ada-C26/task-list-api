@@ -9,7 +9,12 @@ class Goal(db.Model):
 
     @classmethod
     def from_dict(cls, goal_data):
-        return cls(title=goal_data["title"])
+        title = goal_data["title"]
+
+        if not title:
+            raise ValueError("Invalid title")
+
+        return cls(title=title)
 
     def to_dict(self):
         return {"id": self.id, "title": self.title}

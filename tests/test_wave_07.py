@@ -36,7 +36,7 @@ def test_route_utilities_validate_model_with_task_invalid_id(client, three_tasks
     # Test that the correct status code and response message are returned
     response = e.value.get_response()
     assert response.status_code == 400
-    assert response.get_json() == {"details": "task One invalid"}
+    assert response.get_json() == {"message": "Task One invalid"}
 
     # raise Exception("Complete test with an assertion about the response body")
     # *****************************************************************************
@@ -53,7 +53,7 @@ def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks
     response = e.value.get_response()
 
     assert response.status_code == 404
-    assert response.get_json() == {"details": "Task not found"}
+    assert response.get_json() == {"message": "Task 4 not found"}
 
     # raise Exception("Complete test with assertion status code and response body")
     # *****************************************************************************
@@ -80,7 +80,7 @@ def test_route_utilities_validate_model_with_goal_invalid_id(client, one_goal):
     response = e.value.get_response()
 
     assert response.status_code == 400
-    assert response.get_json() == {"message": "goal One invalid"}
+    assert response.get_json() == {"message": "Goal One invalid"}
 
     # raise Exception("Complete test with assertion status code and response body")
     # *****************************************************************************
@@ -97,7 +97,7 @@ def test_route_utilities_validate_model_with_goal_missing_id(client, one_goal):
     response = e.value.get_response()
 
     assert response.status_code == 404
-    assert response.get_json() == {"message": "goal 4 not found"}
+    assert response.get_json() == {"message": "Goal 4 not found"}
 
     # raise Exception("Complete test with assertion status code and response body")
     # *****************************************************************************
