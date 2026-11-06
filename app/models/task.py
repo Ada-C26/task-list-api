@@ -10,7 +10,7 @@ class Task(db.Model):
     title: Mapped[str]
     description: Mapped[str]
     completed_at: Mapped[datetime | None]
-    goal_id: Mapped[int | None] = mapped_column(ForeignKey("goal.id"), nullable=True)
+    goal_id: Mapped[int | None] = mapped_column(ForeignKey("goal.id"))
     goal: Mapped[Optional["Goal"]] = relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
