@@ -79,10 +79,10 @@ def mark_complete(task_id):
     db.session.commit()
 
     requests.post(
-        "https://slack.com/api/chat.postMessage",
-        headers={"Authorization": f"Bearer {os.environ.get('SLACK_API_KEY')}"},
+        SLACK_URL,
+        headers={"Authorization": f"Bearer {SLACK_TOKEN}"},
         json={
-            "channel": "task-notifications",
+            "channel": SLACK_CHANNEL,
             "text": f"Someone just completed the task {task.title}",
         },
         timeout=10,
