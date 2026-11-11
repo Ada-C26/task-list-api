@@ -1,88 +1,67 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, Response
 from app.models.goal import Goal
 from app.models.task import Task
 from app.db import db
-from app.route_utilities import validate_model
-
-
-goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
-
+from app.route_utilities import validate_model, create_model_with_response, get_models_with_filters_with_response
+bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
 # Wave 5: Create a new goal
-@goals_bp.post("")
+@bp.post("")
 def create_goal():
-    request_body = request.get_json(silent=True)
-
-    if not request_body or "title" not in request_body:
-        return {"details": "Invalid data"}, 400
-
-    new_goal = Goal.from_dict(request_body)
-
-    db.session.add(new_goal)
-    db.session.commit()
-
-    return new_goal.to_dict(), 201
-
+    request_body = request.get_json()
+    return create_model_with_response(Goal, request_body)
 
 # Wave 5: Get all goals
-@goals_bp.get("")
+@bp.get("")
 def get_all_goals():
-    query = db.select(Goal).order_by(Goal.id)
-    goals = db.session.scalars(query)
-
-    goals_response = []
-
-    for goal in goals:
-        goals_response.append(goal.to_dict())
-
-    return goals_response, 200
-
+    return get_models_with_filters_with_response(Goal, request.args)
 
 # Wave 5: Get one goal
-@goals_bp.get("/<goal_id>")
+@bp.get("/<goal_id>")
 def get_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
-    return goal.to_dict(), 200
-
+    return goal.to_dict()
 
 # Wave 5: Update a goal
-@goals_bp.put("/<goal_id>")
+@bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
 
+    if not request_body or "title" not in request_body:
+        return {"details": "Invalid data"}, 400
+
     goal.title = request_body["title"]
 
     db.session.commit()
 
-    return "", 204, {"Content-Type": "application/json"}
-
+    return Response(status=204, mimetype="application/json")
 
 # Wave 5: Delete a goal
-@goals_bp.delete("/<goal_id>")
+@bp.delete("/<goal_id>")
 def delete_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     db.session.delete(goal)
     db.session.commit()
 
-    return "", 204, {"Content-Type": "application/json"}
+    return Response(status=204, mimetype="application/json")
 
 # Wave 6: Associate tasks with a goal
-@goals_bp.post("/<goal_id>/tasks")
+@bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
+
+    if not request_body or "task_ids" not in request_body:
+        return {"details": "Invalid data"}, 400
+
     task_ids = request_body["task_ids"]
 
-    tasks = []
-
-    for task_id in task_ids:
-        task = validate_model(Task, task_id)
-        tasks.append(task)
+    tasks = [validate_model(Task, task_id) for task_id in task_ids]
 
     goal.tasks = tasks
 
@@ -94,7 +73,7 @@ def add_tasks_to_goal(goal_id):
     }, 200
 
 # Wave 6: Get all tasks belonging to a goal
-@goals_bp.get("/<goal_id>/tasks")
+@bp.get("/<goal_id>/tasks")
 def get_tasks_for_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 

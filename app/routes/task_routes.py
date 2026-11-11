@@ -1,60 +1,37 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, Response
 from app.models.task import Task
 from app.db import db
 from datetime import datetime
 
-from app.route_utilities import validate_model, create_model
+from app.slack_utilities import send_slack_notification
 
-import requests
-import os
+from app.route_utilities import get_models_with_filters_with_response, validate_model, create_model_with_response
 
-tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 
 # Wave 1 and Wave 7: Create a new task using helper
-@tasks_bp.post("")
+@bp.post("")
 def create_task():
-    request_body = request.get_json(silent=True)
-
-    return create_model(Task, request_body)
+    request_body = request.get_json()
+    return create_model_with_response(Task, request_body)
 
 
 # Wave 1 and Wave 2: Get all tasks with sorting
-@tasks_bp.get("")
+@bp.get("")
 def get_all_tasks():
-    sort = request.args.get("sort")
-
-    query = db.select(Task)
-
-    if sort == "asc":
-        query = query.order_by(Task.title.asc())
-
-    elif sort == "desc":
-        query = query.order_by(Task.title.desc())
-
-    else:
-        query = query.order_by(Task.id)
-
-    tasks = db.session.scalars(query)
-
-    tasks_response = []
-
-    for task in tasks:
-        tasks_response.append(task.to_dict())
-
-    return tasks_response, 200
-
+    return get_models_with_filters_with_response(Task, request.args)
 
 # Wave 1: Get one task
-@tasks_bp.get("/<task_id>")
+@bp.get("/<task_id>")
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
 
-    return task.to_dict(), 200
+    return task.to_dict()
 
 
 # Wave 1: Update a task
-@tasks_bp.put("/<task_id>")
+@bp.put("/<task_id>")
 def update_task(task_id):
     task = validate_model(Task, task_id)
 
@@ -65,22 +42,22 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return "", 204, {"Content-Type": "application/json"}
+    return Response(status=204, mimetype="application/json")
 
 
 # Wave 1: Delete a task
-@tasks_bp.delete("/<task_id>")
+@bp.delete("/<task_id>")
 def delete_task(task_id):
     task = validate_model(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
 
-    return "", 204, {"Content-Type": "application/json"}
+    return Response(status=204, mimetype="application/json")
 
 
 # Wave 3: Mark a task incomplete
-@tasks_bp.patch("/<task_id>/mark_incomplete")
+@bp.patch("/<task_id>/mark_incomplete")
 def mark_incomplete(task_id):
     task = validate_model(Task, task_id)
 
@@ -88,28 +65,17 @@ def mark_incomplete(task_id):
 
     db.session.commit()
 
-    return "", 204, {"Content-Type": "application/json"}
+    return Response(status=204, mimetype="application/json")
 
 
 # Wave 3 and Wave 4: Mark a task complete and notify Slack
-@tasks_bp.patch("/<task_id>/mark_complete")
+@bp.patch("/<task_id>/mark_complete")
 def mark_complete(task_id):
     task = validate_model(Task, task_id)
 
     task.completed_at = datetime.now()
     db.session.commit()
 
-    url = "https://slack.com/api/chat.postMessage"
+    send_slack_notification(task)
 
-    headers = {
-        "Authorization": f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"
-    }
-
-    message = {
-        "channel": os.environ.get("SLACK_CHANNEL_ID"),
-        "text": f"Someone just completed the task {task.title}"
-    }
-
-    requests.post(url, json=message, headers=headers, timeout=10)
-
-    return "", 204, {"Content-Type": "application/json"}
+    return Response(status=204, mimetype="application/json")
