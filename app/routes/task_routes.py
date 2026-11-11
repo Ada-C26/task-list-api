@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, Response, request
+from flask import Blueprint, Response, abort, make_response, request
 
 from ..db import db
 from ..models.task import Task
@@ -37,13 +37,7 @@ def get_all_tasks():
 @bp.get("/<task_id>")
 def get_one_task(task_id):
     task = get_task_by_id(task_id)
-
-    task_dict = task.to_dict()
-
-    if task.goal_id is not None:
-        task_dict["goal_id"] = task.goal_id
-
-    return task_dict, 200
+    return task.to_dict(), 200
 
 
 @bp.put("/<task_id>")
@@ -52,7 +46,6 @@ def update_task(task_id):
     data = parse_json_object()
 
     if "title" not in data or "description" not in data:
-        from flask import abort, make_response
         abort(make_response({"details": "Invalid data"}, 400))
 
     return update_model(task, {

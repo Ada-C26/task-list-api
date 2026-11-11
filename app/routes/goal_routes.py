@@ -9,7 +9,6 @@ from .route_utilities import (
     create_model,
     get_models_with_filters,
     update_model,
-    get_instance_by_id
 )
 
 

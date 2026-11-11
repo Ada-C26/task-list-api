@@ -40,7 +40,7 @@ def test_goal_to_dict_no_title():
 
 def test_goal_from_dict():
     #Arrange
-    goal_dict =  {
+    goal_dict = {
         "title": "Seize the Day!",
     }
 
@@ -53,7 +53,7 @@ def test_goal_from_dict():
 
 def test_goal_from_dict_no_title():
     #Arrange
-    goal_dict =  {
+    goal_dict = {
     }
 
     #Act & Assert
@@ -108,7 +108,9 @@ def test_get_goal_not_found(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body is not None
+    assert response_body == {
+        "message": "Goal id 1 not found"
+    }
 
 
 def test_create_goal(client):
