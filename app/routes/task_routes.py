@@ -38,7 +38,12 @@ def get_all_tasks():
 def get_one_task(task_id):
     task = get_task_by_id(task_id)
 
-    return task.to_dict(), 200
+    task_dict = task.to_dict()
+
+    if task.goal_id is not None:
+        task_dict["goal_id"] = task.goal_id
+
+    return task_dict, 200
 
 
 @tasks_bp.put("/<task_id>")

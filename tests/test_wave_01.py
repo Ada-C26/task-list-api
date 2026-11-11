@@ -16,16 +16,11 @@ def test_task_to_dict():
     task_dict = new_task.to_dict()
 
     #Assert
-    # Update the expected length from 4 to 5 because goal_id is now included in
-    # Task.to_dict() as part of the Wave 6 Task-to-Goal relationship. Keeping
-    # goal_id in every serialized Task, even when its value is None, this maintains
-    # a consistent API response structure and avoids making the field conditional.
-    assert len(task_dict) == 5
+    assert len(task_dict) == 4
     assert task_dict["id"] == 1
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
     assert task_dict["is_complete"] is False
-    assert task_dict["goal_id"] is None
 
 
 def test_task_to_dict_missing_id():
@@ -40,12 +35,11 @@ def test_task_to_dict_missing_id():
     task_dict = new_task.to_dict()
 
     #Assert
-    assert len(task_dict) == 5
+    assert len(task_dict) == 4
     assert task_dict["id"] is None
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
     assert task_dict["is_complete"] is False
-    assert task_dict["goal_id"] is None
 
 
 def test_task_to_dict_missing_title():
@@ -60,12 +54,11 @@ def test_task_to_dict_missing_title():
     task_dict = new_task.to_dict()
 
     #Assert
-    assert len(task_dict) == 5
+    assert len(task_dict) == 4
     assert task_dict["id"] == 1
     assert task_dict["title"] is None
     assert task_dict["description"] == "Start the day off right!"
     assert task_dict["is_complete"] is False
-    assert task_dict["goal_id"] is None
 
 
 def test_task_from_dict():
@@ -93,19 +86,19 @@ def test_task_from_dict_no_title():
     }
 
     #Act & Assert
-    with pytest.raises(KeyError, match="title"):
+    with pytest.raises(KeyError, match= 'title'):
         Task.from_dict(task_dict)
 
 
 def test_task_from_dict_no_description():
     #Arrange
-    task_dict = {
+    task_dict =  {
         "title": "Make My Bed",
         "is_complete": False
     }
 
     #Act & Assert
-    with pytest.raises(KeyError, match="description"):
+    with pytest.raises(KeyError, match= 'description'):
         Task.from_dict(task_dict)
 
 
@@ -133,7 +126,6 @@ def test_get_tasks_one_saved_tasks(client, one_task):
             "title": "Go on my daily walk 🏞",
             "description": "Notice something new every day",
             "is_complete": False,
-            "goal_id": None
         }
     ]
 
@@ -150,7 +142,6 @@ def test_get_task(client, one_task):
         "title": "Go on my daily walk 🏞",
         "description": "Notice something new every day",
         "is_complete": False,
-        "goal_id": None
     }
 
 
@@ -181,7 +172,6 @@ def test_create_task(client):
         "title": "A Brand New Task",
         "description": "Test Description",
         "is_complete": False,
-        "goal_id": None
     }
 
     query = db.select(Task).where(Task.id == 1)

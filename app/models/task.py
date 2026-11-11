@@ -21,7 +21,6 @@ class Task(db.Model):
     def to_dict(self) -> dict:
         return {
             "id": self.id,
-            "goal_id": self.goal_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.completed_at is not None
