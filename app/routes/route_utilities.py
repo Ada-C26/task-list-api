@@ -10,10 +10,9 @@ from ..db import db
 logger = logging.getLogger(__name__)
 
 
-def get_instance_by_id(instance_id, model, model_name=None):
+def get_instance_by_id(instance_id, model):
     """Retrieve a model by ID or abort with an appropriate HTTP error."""
-    if model_name is None:
-        model_name = model.__name__
+    model_name = model.__name__
 
     try:
         instance_id = int(instance_id)
@@ -32,11 +31,6 @@ def get_instance_by_id(instance_id, model, model_name=None):
         ))
 
     return instance
-
-
-def validate_model(model, model_id):
-    """Validate a model ID and return the matching database instance"""
-    return get_instance_by_id(model_id, model)
 
 
 def parse_json_object():

@@ -9,8 +9,8 @@ from ..db import db
 
 class Task(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    title: Mapped[str] = mapped_column(String)
-    description: Mapped[str] = mapped_column(Text)
+    title: Mapped[str] 
+    description: Mapped[str] 
     completed_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(),
         default=None

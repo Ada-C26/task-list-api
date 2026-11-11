@@ -2,14 +2,14 @@ import pytest
 from werkzeug.exceptions import HTTPException
 from app.models.goal import Goal
 from app.models.task import Task
-from app.routes.route_utilities import create_model, validate_model
+from app.routes.route_utilities import create_model, get_instance_by_id
 
 
 def test_route_utilities_validate_model_with_task(client, three_tasks):
     #Act
-    task_1 = validate_model(Task, 1)
-    task_2 = validate_model(Task, 2)
-    task_3 = validate_model(Task, 3)
+    task_1 = get_instance_by_id(1, Task)
+    task_2 = get_instance_by_id(2, Task)
+    task_3 = get_instance_by_id(3, Task)
 
     #Assert
     assert task_1.id == 1
@@ -27,7 +27,7 @@ def test_route_utilities_validate_model_with_task(client, three_tasks):
 def test_route_utilities_validate_model_with_task_invalid_id(client, three_tasks):
     #Act & Assert
     with pytest.raises(HTTPException) as e:
-        validate_model(Task, "One")
+        get_instance_by_id("One", Task)
 
     response = e.value.get_response()
 
@@ -40,7 +40,7 @@ def test_route_utilities_validate_model_with_task_invalid_id(client, three_tasks
 def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks):
     #Act & Assert
     with pytest.raises(HTTPException) as e:
-        validate_model(Task, 4)
+        get_instance_by_id(4, Task)
 
     response = e.value.get_response()
 
@@ -52,7 +52,7 @@ def test_route_utilities_validate_model_with_task_missing_id(client, three_tasks
 
 def test_route_utilities_validate_model_with_goal(client, one_goal):
     #Act
-    goal_1 = validate_model(Goal, 1)
+    goal_1 = get_instance_by_id(1, Goal)
 
     #Assert
     assert goal_1.id == 1
@@ -62,7 +62,7 @@ def test_route_utilities_validate_model_with_goal(client, one_goal):
 def test_route_utilities_validate_model_with_goal_invalid_id(client, one_goal):
     #Act & Assert
     with pytest.raises(HTTPException) as e:
-        validate_model(Goal, "One")
+        get_instance_by_id("One", Goal)
 
     response = e.value.get_response()
 
@@ -75,7 +75,7 @@ def test_route_utilities_validate_model_with_goal_invalid_id(client, one_goal):
 def test_route_utilities_validate_model_with_goal_missing_id(client, one_goal):
     #Act & Assert
     with pytest.raises(HTTPException) as e:
-        validate_model(Goal, 4)
+        get_instance_by_id(4, Goal)
 
     response = e.value.get_response()
 

@@ -6,27 +6,28 @@ from ..models.task import Task
 from .route_utilities import (
     get_instance_by_id,
     parse_json_object,
-    validate_model,
     create_model,
     get_models_with_filters,
     update_model,
+    get_instance_by_id
 )
 
-goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
 def get_goal_by_id(goal_id):
     """Retrieve a goal by ID, allows a custom model name for error messages."""
-    return get_instance_by_id(goal_id, Goal, "Goal")
+    return get_instance_by_id(goal_id, Goal)
 
 
-@goals_bp.post("")
+@bp.post("")
 def create_goal():
     data = parse_json_object()
     return create_model(Goal, data)
 
 
-@goals_bp.post("/<goal_id>/tasks")
+@bp.post("/<goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
     goal = get_goal_by_id(goal_id)
     data = parse_json_object()
@@ -39,7 +40,7 @@ def add_tasks_to_goal(goal_id):
 
     for task_id in task_ids:
         
-        task = validate_model(Task, task_id)
+        task = get_instance_by_id(task_id, Task)
         tasks.append(task)
 
     goal.tasks = tasks
@@ -51,28 +52,28 @@ def add_tasks_to_goal(goal_id):
     }, 200
 
 
-@goals_bp.get("/<goal_id>/tasks")
+@bp.get("/<goal_id>/tasks")
 def get_tasks_for_goal(goal_id):
     goal = get_goal_by_id(goal_id)
 
     return goal.to_dict(with_tasks=True), 200
 
 
-@goals_bp.get("")
+@bp.get("")
 def get_all_goals():
     filters = request.args.to_dict()
     goals = get_models_with_filters(Goal, filters)
     return goals, 200
 
 
-@goals_bp.get("/<goal_id>")
+@bp.get("/<goal_id>")
 def get_one_goal(goal_id):
     goal = get_goal_by_id(goal_id)
 
     return goal.to_dict(), 200
 
 
-@goals_bp.put("/<goal_id>")
+@bp.put("/<goal_id>")
 def update_goal(goal_id):
     goal = get_goal_by_id(goal_id)
     data = parse_json_object()
@@ -83,7 +84,7 @@ def update_goal(goal_id):
     return update_model(goal, {"title": data["title"]})
 
 
-@goals_bp.delete("/<goal_id>")
+@bp.delete("/<goal_id>")
 def delete_goal(goal_id):
     goal = get_goal_by_id(goal_id)
 
