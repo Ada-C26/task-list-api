@@ -9,12 +9,26 @@ tasks_bp = Blueprint("tasks", __name__)
 # Get all tasks.
 @tasks_bp.get("/tasks")
 def get_all_tasks():
-    tasks = db.session.scalars(db.select(Task)).all()
+    # Start with a query for all tasks.
+    query = db.select(Task)
+
+    # Get the sort value from the URL.
+    sort_order = request.args.get("sort")
+
+    # Sort tasks by title.
+    if sort_order == "asc":
+        query = query.order_by(Task.title.asc())
+    elif sort_order == "desc":
+        query = query.order_by(Task.title.desc())
+
+    # Run the query and get the tasks.
+    tasks = db.session.scalars(query).all()
 
     # Convert each Task object into a dictionary.
     tasks_list = [task.to_dict() for task in tasks]
 
     return jsonify(tasks_list), 200
+
 
 
 # Create a new task.
