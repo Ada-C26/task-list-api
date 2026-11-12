@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from datetime import datetime
 from ..models.task import Task
 from ..db import db
 
@@ -62,6 +63,44 @@ def get_one_task(task_id):
 
     # Return the task as JSON.
     return jsonify(task.to_dict()), 200
+
+
+# Mark a task as complete.
+@tasks_bp.patch("/tasks/<int:task_id>/mark_complete")
+def mark_complete(task_id):
+    # Find the task in the database.
+    task = db.session.get(Task, task_id)
+
+    # Return an error if the task does not exist.
+    if task is None:
+        return jsonify({"details": "Task not found"}), 404
+
+    # Set the current date and time.
+    task.completed_at = datetime.now()
+
+    # Save the change in the database.
+    db.session.commit()
+
+    return "", 204
+
+
+# Mark a task as incomplete.
+@tasks_bp.patch("/tasks/<int:task_id>/mark_incomplete")
+def mark_incomplete(task_id):
+    # Find the task in the database.
+    task = db.session.get(Task, task_id)
+
+    # Return an error if the task does not exist.
+    if task is None:
+        return jsonify({"details": "Task not found"}), 404
+
+    # Remove the completion date.
+    task.completed_at = None
+
+    # Save the change in the database.
+    db.session.commit()
+
+    return "", 204
 
 
 # Update an existing task.
