@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from ..models.goal import Goal
 from ..models.task import Task
 from ..db import db
+from .route_utilities import create_model, validate_model
 
 # Create a Blueprint for Goal routes.
 goals_bp = Blueprint("goals", __name__)
@@ -17,22 +18,15 @@ def get_goals():
 def create_goal():
     goal_data = request.get_json()
 
-    # Check if the title is missing.
-    if not goal_data or "title" not in goal_data:
-        return jsonify({"details": "Invalid data"}), 400
+    response = create_model(Goal, goal_data)
 
-    new_goal = Goal.from_dict(goal_data)
-    db.session.add(new_goal)
-    db.session.commit()
+    return jsonify(response[0]), response[1]
 
-    return jsonify(new_goal.to_dict()), 201
 
 # Define a route to get a goal by its ID.
 @goals_bp.get("/goals/<int:goal_id>")
 def get_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-    if goal is None:
-        return jsonify({"details": "Goal not found"}), 404
+    goal = validate_model(Goal, goal_id)
     return jsonify(goal.to_dict())
 
 # Define a route to update a goal by its ID.

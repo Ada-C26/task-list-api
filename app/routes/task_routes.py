@@ -5,6 +5,8 @@ from datetime import datetime
 from ..models.task import Task
 from ..db import db
 from app.models import task
+from .route_utilities import create_model, validate_model
+
 
 # Create a Blueprint for Task routes.
 tasks_bp = Blueprint("tasks", __name__)
@@ -40,43 +42,23 @@ def get_all_tasks():
 def create_task():
     task_data = request.get_json()
 
-    # Check that title and description are present.
-    if not isinstance(task_data, dict) or "title" not in task_data or "description" not in task_data:
-        return jsonify({"details": "Invalid data"}), 400
+    response = create_model(Task, task_data)
 
-    # Create a Task object from the request data.
-    new_task = Task.from_dict(task_data)
-
-    # Save the task in the database.
-    db.session.add(new_task)
-    db.session.commit()
-
-    return jsonify(new_task.to_dict()), 201
+    return jsonify(response[0]), response[1]
 
 
 # Get one task by its ID.
 @tasks_bp.get("/tasks/<int:task_id>")
 def get_one_task(task_id):
-    # Find the task in the database.
-    task = db.session.get(Task, task_id)
+    task = validate_model(Task, task_id)
 
-    # Return an error if the task does not exist.
-    if task is None:
-        return jsonify({"details": "Task not found"}), 404
-
-    # Return the task as JSON.
     return jsonify(task.to_dict()), 200
 
 
 # Mark a task as complete.
 @tasks_bp.patch("/tasks/<int:task_id>/mark_complete")
 def mark_complete(task_id):
-    # Find the task in the database.
-    task = db.session.get(Task, task_id)
-
-    # Return an error if the task does not exist.
-    if task is None:
-        return jsonify({"details": "Task not found"}), 404
+    task = validate_model(Task, task_id)
 
     # Set the current date and time.
     task.completed_at = datetime.now()
@@ -110,12 +92,7 @@ def mark_complete(task_id):
 # Mark a task as incomplete.
 @tasks_bp.patch("/tasks/<int:task_id>/mark_incomplete")
 def mark_incomplete(task_id):
-    # Find the task in the database.
-    task = db.session.get(Task, task_id)
-
-    # Return an error if the task does not exist.
-    if task is None:
-        return jsonify({"details": "Task not found"}), 404
+    task = validate_model(Task, task_id)
 
     # Remove the completion date.
     task.completed_at = None
@@ -129,12 +106,7 @@ def mark_incomplete(task_id):
 # Update an existing task.
 @tasks_bp.put("/tasks/<int:task_id>")
 def update_task(task_id):
-    # Find the task in the database.
-    task = db.session.get(Task, task_id)
-
-    # Return an error if the task does not exist.
-    if task is None:
-        return jsonify({"details": "Task not found"}), 404
+    task = validate_model(Task, task_id)
 
     task_data = request.get_json()
 
@@ -156,12 +128,7 @@ def update_task(task_id):
 # Delete a task
 @tasks_bp.delete("/tasks/<int:task_id>")
 def delete_task(task_id):
-    # Find the task in the database.
-    task = db.session.get(Task, task_id)
-
-    # Return an error if the task does not exist.
-    if task is None:
-        return jsonify({"details": "Task not found"}), 404
+    task = validate_model(Task, task_id)
 
     # Delete the task from the database.
     db.session.delete(task)
