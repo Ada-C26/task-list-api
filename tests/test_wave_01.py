@@ -2,13 +2,16 @@ from app.models.task import Task
 from app.db import db
 import pytest
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_to_dict():
     #Arrange
-    new_task = Task(id = 1, title="Make My Bed", 
-                    description="Start the day off right!", 
-                    completed_at=None)
-    
+    new_task = Task(
+        id=1,
+        title="Make My Bed",
+        description="Start the day off right!",
+        completed_at=None
+    )
+
     #Act
     task_dict = new_task.to_dict()
 
@@ -17,16 +20,18 @@ def test_task_to_dict():
     assert task_dict["id"] == 1
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
-    assert task_dict["is_complete"] == False
+    assert task_dict["is_complete"] is False
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_to_dict_missing_id():
     #Arrange
-    new_task = Task(title="Make My Bed", 
-                    description="Start the day off right!", 
-                    completed_at=None)
-    
-    #Act
+    new_task = Task(
+        title="Make My Bed",
+        description="Start the day off right!",
+        completed_at=None
+    )
+
+    # Act
     task_dict = new_task.to_dict()
 
     #Assert
@@ -34,15 +39,17 @@ def test_task_to_dict_missing_id():
     assert task_dict["id"] is None
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
-    assert task_dict["is_complete"] == False
+    assert task_dict["is_complete"] is False
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_to_dict_missing_title():
     #Arrange
-    new_task = Task(id = 1,
-                    description="Start the day off right!", 
-                    completed_at=None)
-    
+    new_task = Task(
+        id=1,
+        description="Start the day off right!",
+        completed_at=None
+    )
+
     #Act
     task_dict = new_task.to_dict()
 
@@ -51,38 +58,38 @@ def test_task_to_dict_missing_title():
     assert task_dict["id"] == 1
     assert task_dict["title"] is None
     assert task_dict["description"] == "Start the day off right!"
-    assert task_dict["is_complete"] == False
+    assert task_dict["is_complete"] is False
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_from_dict():
     #Arrange
-    task_dict =  {
+    task_dict = {
         "title": "Make My Bed",
         "description": "Start the day off right!",
         "is_complete": False
     }
 
     #Act
-    task_obj =  Task.from_dict(task_dict)
+    task_obj = Task.from_dict(task_dict)
 
     #Assert
     assert task_obj.title == "Make My Bed"
     assert task_obj.description == "Start the day off right!"
     assert task_obj.completed_at is None
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_from_dict_no_title():
     #Arrange
-    task_dict =  {
+    task_dict = {
         "description": "Start the day off right!",
         "is_complete": False
     }
 
     #Act & Assert
-    with pytest.raises(KeyError, match = 'title'):
+    with pytest.raises(KeyError, match= 'title'):
         Task.from_dict(task_dict)
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_task_from_dict_no_description():
     #Arrange
     task_dict =  {
@@ -91,10 +98,10 @@ def test_task_from_dict_no_description():
     }
 
     #Act & Assert
-    with pytest.raises(KeyError, match = 'description'):
+    with pytest.raises(KeyError, match= 'description'):
         Task.from_dict(task_dict)
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_get_tasks_no_saved_tasks(client):
     # Act
     response = client.get("/tasks")
@@ -105,7 +112,6 @@ def test_get_tasks_no_saved_tasks(client):
     assert response_body == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_one_saved_tasks(client, one_task):
     # Act
     response = client.get("/tasks")
@@ -119,12 +125,11 @@ def test_get_tasks_one_saved_tasks(client, one_task):
             "id": 1,
             "title": "Go on my daily walk 🏞",
             "description": "Notice something new every day",
-            "is_complete": False
+            "is_complete": False,
         }
     ]
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task(client, one_task):
     # Act
     response = client.get("/tasks/1")
@@ -136,11 +141,10 @@ def test_get_task(client, one_task):
         "id": 1,
         "title": "Go on my daily walk 🏞",
         "description": "Notice something new every day",
-        "is_complete": False
+        "is_complete": False,
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_not_found(client):
     # Act
     response = client.get("/tasks/1")
@@ -148,14 +152,11 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+    assert response_body == {
+        "message": "Task id 1 not found"
+    }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task(client):
     # Act
     response = client.post("/tasks", json={
@@ -170,18 +171,18 @@ def test_create_task(client):
         "id": 1,
         "title": "A Brand New Task",
         "description": "Test Description",
-        "is_complete": False
+        "is_complete": False,
     }
-    
+
     query = db.select(Task).where(Task.id == 1)
     new_task = db.session.scalar(query)
 
     assert new_task
     assert new_task.title == "A Brand New Task"
     assert new_task.description == "Test Description"
-    assert new_task.completed_at == None
+    assert new_task.completed_at is None
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_update_task(client, one_task):
     # Act
     response = client.put("/tasks/1", json={
@@ -197,11 +198,9 @@ def test_update_task(client, one_task):
 
     assert task.title == "Updated Task Title"
     assert task.description == "Updated Test Description"
-    assert task.completed_at == None
+    assert task.completed_at is None
 
 
-
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_update_task_not_found(client):
     # Act
     response = client.put("/tasks/1", json={
@@ -212,14 +211,11 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+    assert response_body == {
+        "message": "Task id 1 not found"
+    }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
@@ -228,9 +224,9 @@ def test_delete_task(client, one_task):
     assert response.status_code == 204
 
     query = db.select(Task).where(Task.id == 1)
-    assert db.session.scalar(query) == None
+    assert db.session.scalar(query) is None
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_delete_task_not_found(client):
     # Act
     response = client.delete("/tasks/1")
@@ -238,16 +234,12 @@ def test_delete_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
-
+    assert response_body == {
+        "message": "Task id 1 not found"
+    }
     assert db.session.scalars(db.select(Task)).all() == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task_must_contain_title(client):
     # Act
     response = client.post("/tasks", json={
@@ -264,7 +256,6 @@ def test_create_task_must_contain_title(client):
     assert db.session.scalars(db.select(Task)).all() == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task_must_contain_description(client):
     # Act
     response = client.post("/tasks", json={
