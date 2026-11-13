@@ -107,16 +107,13 @@ def test_get_goal(client, one_goal):
 
 
 def test_get_goal_not_found(client):
-    pass
-    # Act
+    # Try to get a goal that does not exist.
     response = client.get("/goals/1")
     response_body = response.get_json()
 
-    # Assert
-    # ---- Complete Test ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Test ----
+    # Check that the API returns 404.
+    assert response.status_code == 404
+    assert response_body == {"details": "Goal not found"}
 
 
 
