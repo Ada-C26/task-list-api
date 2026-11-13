@@ -1,7 +1,10 @@
+import os
+import requests
 from flask import Blueprint, jsonify, request
 from datetime import datetime
 from ..models.task import Task
 from ..db import db
+from app.models import task
 
 # Create a Blueprint for Task routes.
 tasks_bp = Blueprint("tasks", __name__)
@@ -81,8 +84,28 @@ def mark_complete(task_id):
     # Save the change in the database.
     db.session.commit()
 
-    return "", 204
+    # Get the Slack bot token from the environment.
+    slack_token = os.environ.get("SLACK_BOT_TOKEN")
 
+    # Create the Slack message.
+    message = f"Someone just completed the task {task.title}"
+
+    # Add the bot token to the request headers.
+    headers = {
+        "Authorization": f"Bearer {slack_token}"
+    }
+
+    # Send the message to the Slack channel.
+    requests.post(
+        "https://slack.com/api/chat.postMessage",
+        headers=headers,
+        json={
+            "channel": "C0CHJCMQ7HA",
+            "text": message
+        }
+    )
+
+    return "", 204
 
 # Mark a task as incomplete.
 @tasks_bp.patch("/tasks/<int:task_id>/mark_incomplete")
