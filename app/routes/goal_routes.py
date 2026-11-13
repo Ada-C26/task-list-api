@@ -10,7 +10,7 @@ goals_bp = Blueprint("goals", __name__)
 # Define a route to get all goals.
 @goals_bp.get("/goals")
 def get_goals():
-    goals = Goal.query.all()
+    goals = db.session.scalars(db.select(Goal)).all()
     return jsonify([goal.to_dict() for goal in goals])
 
 # Define a route to create a new goal.
@@ -30,13 +30,9 @@ def get_goal(goal_id):
     return jsonify(goal.to_dict())
 
 # Define a route to update a goal by its ID.
-
 @goals_bp.put("/goals/<int:goal_id>")
 def update_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-
-    if goal is None:
-        return jsonify({"details": "Goal not found"}), 404
+    goal = validate_model(Goal, goal_id)
 
     goal_data = request.get_json()
     goal.title = goal_data["title"]
@@ -48,9 +44,7 @@ def update_goal(goal_id):
 # Define a route to delete a goal by its ID.
 @goals_bp.delete("/goals/<int:goal_id>")
 def delete_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-    if goal is None:
-        return jsonify({"details": "Goal not found"}), 404
+    goal = validate_model(Goal, goal_id)
     db.session.delete(goal)
     db.session.commit()
     return jsonify({}), 204
@@ -59,11 +53,7 @@ def delete_goal(goal_id):
 # Add tasks to a goal.
 @goals_bp.post("/goals/<int:goal_id>/tasks")
 def add_tasks_to_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-
-    # Check if the goal exists.
-    if goal is None:
-        return jsonify({"details": "Goal not found"}), 404
+    goal = validate_model(Goal, goal_id)
 
     task_data = request.get_json()
 
@@ -96,11 +86,7 @@ def add_tasks_to_goal(goal_id):
 # Get a goal and all its tasks.
 @goals_bp.get("/goals/<int:goal_id>/tasks")
 def get_tasks_for_goal(goal_id):
-    goal = db.session.get(Goal, goal_id)
-
-    # Check if the goal exists.
-    if goal is None:
-        return jsonify({"details": "Goal not found"}), 404
+    goal = validate_model(Goal, goal_id)
 
     return jsonify({
         "id": goal.id,
