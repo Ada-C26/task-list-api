@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..models.goal import Goal
+from ..models.task import Task
 from ..db import db
 
 # Create a Blueprint for Goal routes.
@@ -59,3 +60,56 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
     return jsonify({}), 204
+
+
+# Add tasks to a goal.
+@goals_bp.post("/goals/<int:goal_id>/tasks")
+def add_tasks_to_goal(goal_id):
+    goal = db.session.get(Goal, goal_id)
+
+    # Check if the goal exists.
+    if goal is None:
+        return jsonify({"details": "Goal not found"}), 404
+
+    task_data = request.get_json()
+
+    # Check if task_ids is in the request.
+    if not task_data or "task_ids" not in task_data:
+        return jsonify({"details": "Invalid data"}), 400
+
+    task_ids = task_data["task_ids"]
+
+    # Find all tasks with these IDs.
+    tasks = db.session.scalars(
+        db.select(Task).where(Task.id.in_(task_ids))
+    ).all()
+
+    # Check if all requested tasks exist.
+    if len(tasks) != len(task_ids):
+        return jsonify({"details": "Task not found"}), 404
+
+    # Replace the current tasks with the new tasks.
+    goal.tasks = tasks
+
+    db.session.commit()
+
+    return jsonify({
+        "id": goal.id,
+        "task_ids": [task.id for task in goal.tasks]
+    }), 200
+
+
+# Get a goal and all its tasks.
+@goals_bp.get("/goals/<int:goal_id>/tasks")
+def get_tasks_for_goal(goal_id):
+    goal = db.session.get(Goal, goal_id)
+
+    # Check if the goal exists.
+    if goal is None:
+        return jsonify({"details": "Goal not found"}), 404
+
+    return jsonify({
+        "id": goal.id,
+        "title": goal.title,
+        "tasks": [task.to_dict() for task in goal.tasks]
+    })

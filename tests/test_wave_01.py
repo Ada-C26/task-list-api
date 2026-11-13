@@ -13,7 +13,8 @@ def test_task_to_dict():
     task_dict = new_task.to_dict()
 
     #Assert
-    assert len(task_dict) == 4
+    assert len(task_dict) == 5
+    assert task_dict["goal_id"] is None
     assert task_dict["id"] == 1
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
@@ -30,7 +31,8 @@ def test_task_to_dict_missing_id():
     task_dict = new_task.to_dict()
 
     #Assert
-    assert len(task_dict) == 4
+    assert len(task_dict) == 5
+    assert task_dict["goal_id"] is None
     assert task_dict["id"] is None
     assert task_dict["title"] == "Make My Bed"
     assert task_dict["description"] == "Start the day off right!"
@@ -47,7 +49,8 @@ def test_task_to_dict_missing_title():
     task_dict = new_task.to_dict()
 
     #Assert
-    assert len(task_dict) == 4
+    assert len(task_dict) == 5
+    assert task_dict["goal_id"] is None
     assert task_dict["id"] == 1
     assert task_dict["title"] is None
     assert task_dict["description"] == "Start the day off right!"
@@ -117,6 +120,7 @@ def test_get_tasks_one_saved_tasks(client, one_task):
     assert response_body == [
         {
             "id": 1,
+            "goal_id": None,
             "title": "Go on my daily walk 🏞",
             "description": "Notice something new every day",
             "is_complete": False
@@ -134,6 +138,7 @@ def test_get_task(client, one_task):
     assert response.status_code == 200
     assert response_body == {
         "id": 1,
+        "goal_id": None,
         "title": "Go on my daily walk 🏞",
         "description": "Notice something new every day",
         "is_complete": False
@@ -166,6 +171,7 @@ def test_create_task(client):
     assert response.status_code == 201
     assert response_body == {
         "id": 1,
+        "goal_id": None,
         "title": "A Brand New Task",
         "description": "Test Description",
         "is_complete": False

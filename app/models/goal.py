@@ -1,5 +1,5 @@
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from ..db import db
 
 
@@ -9,6 +9,11 @@ class Goal(db.Model):
 
     # This field stores the goal title.
     title: Mapped[str] = mapped_column(db.Text, nullable=False)
+
+    # This gives access to the tasks associated with the goal.
+    tasks: Mapped[list["Task"]] = relationship(
+        back_populates="goal"
+    )
 
     def to_dict(self):
         # Convert the Goal object into a dictionary.
